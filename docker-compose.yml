@@ -1,3 +1,17 @@
+db:
+  image: couchdb
+  ports:
+    - "5984:5984"
+  environment:
+    - COUCHDB_USER=default
+    - COUCHDB_PASSWORD=password
+seed-db:
+  image: ibmcom/swift-ubuntu
+  volumes:
+    - .:/root/BookshelfAPI
+  command: BookshelfAPI/scripts/seed_couchdb.sh --username=default --password=password --url=http://db:5984
+  links:
+    - db
 app:
   image: ibmcom/swift-ubuntu
   ports:
@@ -5,3 +19,5 @@ app:
   volumes:
     - .:/root/BookshelfAPI
   command: bash -c "make clean -C BookshelfAPI && make -C BookshelfAPI && BookshelfAPI/.build/debug/BookshelfAPI"
+  links:
+    - db:localhost
